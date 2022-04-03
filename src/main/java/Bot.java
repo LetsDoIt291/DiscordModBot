@@ -19,7 +19,7 @@ public class Bot {
         client.useHelpBuilder(false);
         client.setActivity(Activity.listening("DMs -> /help"));
 
-        JDABuilder jda = JDABuilder.createDefault("NzkzOTU0MjQ4MzAzNzA2MTIy.X-zxgw.5AmN4tfYNWu6UWXzMsF1kSgY6YM")
+        JDABuilder jda = JDABuilder.createDefault("TOKEN")
                 .addEventListeners(new Commands(), waiter, client.build());
 
         jda.build();
