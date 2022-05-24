@@ -18,16 +18,15 @@ public class SpamPrevention {
     }
 
     public static boolean checkTimeReports(String uID){
-        ArrayList<String> reports = Storage.reportSort();
+        ArrayList<ReportTicket> reports = Storage.reportSort();
         ArrayList<String> times = new ArrayList<>();
         int count = 0;
         boolean x = false;
 
         for(int i = 0; i < reports.size(); i ++){
-            if(reports.get(i).startsWith(uID)){
+            if(reports.get(i).userID.equals(uID)){
                 count++;
-                String[] args = reports.get(i).split(",");
-                times.add(args[3]);
+                times.add(reports.get(i).time);
             }
         }
 
@@ -48,13 +47,12 @@ public class SpamPrevention {
     }
 
     public static boolean checkAppealTime(String uID){
-        ArrayList<String> appeals = Storage.appealSort();
+        ArrayList<AppealTicket> appeals = Storage.appealSort();
         ArrayList<String> times = new ArrayList<>();
 
         for(int i = 0; i < appeals.size(); i ++){
-            if(appeals.get(i).startsWith(uID)){
-                String[] args = appeals.get(i).split(",");
-                times.add(args[3]);
+            if(appeals.get(i).userID.equals(uID)){
+                times.add(appeals.get(i).time);
             }
         }
 
@@ -70,16 +68,15 @@ public class SpamPrevention {
     }
 
     public static SpamPrevention spamPreventionAppeal(String uID){
-        ArrayList<String> reports = Storage.appealSort();
+        ArrayList<AppealTicket> appeals = Storage.appealSort();
         ArrayList<String> times = new ArrayList<>();
         int hours = 0;
         int minutes = 0;
         int seconds = 0;
 
-        for(int i = 0; i < reports.size(); i ++){
-            if(reports.get(i).startsWith(uID)){
-                String[] args = reports.get(i).split(",");
-                times.add(args[3]);
+        for(int i = 0; i < appeals.size(); i ++){
+            if(appeals.get(i).userID.equals(uID)){
+                times.add(appeals.get(i).time);
             }
         }
 
@@ -102,17 +99,16 @@ public class SpamPrevention {
     }
 
     public static SpamPrevention spamPreventionReport(String uID){
-        ArrayList<String> reports = Storage.reportSort();
+        ArrayList<ReportTicket> reports = Storage.reportSort();
         ArrayList<String> times = new ArrayList<>();
         int count = 0;
         int minutes = 0;
         int seconds = 0;
 
         for(int i = 0; i < reports.size(); i ++){
-            if(reports.get(i).startsWith(uID)){
+            if(reports.get(i).userID.equals(uID)){
                 count++;
-                String[] args = reports.get(i).split(",");
-                times.add(args[3]);
+                times.add(reports.get(i).time);
             }
         }
 

@@ -98,8 +98,10 @@ public class Storage {
         return false;
     }
 
-    public static ArrayList<String> appealSort(){
+    public static ArrayList<AppealTicket> appealSort(){
         ArrayList<String> appeals = new ArrayList<>();
+
+        ArrayList<AppealTicket> appealsObj = new ArrayList<>();
 
         //puts all the content of the file into an array. the index position is how report IDs are determined. (used within other methods)
         try {
@@ -109,13 +111,39 @@ public class Storage {
                 appeals.add(myReader.nextLine());
             }
             myReader.close();
-            System.out.println("Successfully read and wrote from the appeals file. (appealSort)");
+            System.out.println("Successfully read and wrote from the appealSort file. (appealSort)");
         } catch (FileNotFoundException e) {
-            System.out.println("An error occurred while reading the appeals file. (appealSort)");
+            System.out.println("An error occurred while reading the appealSort file. (appealSort)");
             e.printStackTrace();
         }
 
-        return appeals;
+        for(int i = 0; i < (appeals.size() / 5); i++){
+            appealsObj.add(new AppealTicket(appeals.get(i * 5), appeals.get((i * 5) + 1), appeals.get((i * 5) + 2), appeals.get((i * 5) + 3), appeals.get((i * 5) + 4)));
+        }
+
+
+        return appealsObj;
+    }
+
+    public static ArrayList<String> openTicketSort(){
+        ArrayList<String> userIDs = new ArrayList<>();
+
+        //puts all the content of the file into an array.
+        try {
+            File myObj = new File(openTicketFilePath);
+            Scanner myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()) {
+                userIDs.add(myReader.nextLine());
+            }
+            myReader.close();
+            System.out.println("Successfully read and wrote from the openTicket file. (openTicketSort)");
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred while reading the openTicket file. (openTicketSort)");
+            e.printStackTrace();
+        }
+
+        //returns the array
+        return userIDs;
     }
 
     public static void addUserToOpenTicket(String userID){
@@ -131,24 +159,15 @@ public class Storage {
     }
 
     public static void removeUserFromOpenTicket(String userID){
+        ArrayList<String> modList = openTicketSort();
+
         String idList = "";
 
-        //read the file and looks for the ID
-        try {
-            File myObj = new File(openTicketFilePath);
-            Scanner myReader = new Scanner(myObj);
-            while(myReader.hasNextLine()) {
-                if(!myReader.nextLine().equals(userID))
-                    idList = idList + myReader.nextLine() + "\n";
+        for(int i = 0; i < modList.size(); i++){
+            if(!modList.get(i).startsWith(userID)){
+                idList = idList + modList.get(i) + "\n";
             }
-            myReader.close();
-            System.out.println("Successfully read the openTicket file. (removeUserFromOpenTicket)");
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred while reading the openTicket file. (removeUserFromOpenTicket");
-            e.printStackTrace();
         }
-
-        System.out.println(idList);
 
         //rewrites the available mods file without the given ID
         try {
@@ -254,8 +273,10 @@ public class Storage {
         return info.get(index);
     }
 
-    public static ArrayList<String> reportSort(){
+    public static ArrayList<ReportTicket> reportSort(){
         ArrayList<String> reports = new ArrayList<>();
+
+        ArrayList<ReportTicket> reportsObj = new ArrayList<>();
 
         //puts all the content of the file into an array. the index position is how report IDs are determined. (used within other methods)
         try {
@@ -271,7 +292,46 @@ public class Storage {
             e.printStackTrace();
         }
 
-        return reports;
+        for(int i = 0; i < (reports.size() / 5); i++){
+            reportsObj.add(new ReportTicket(reports.get(i * 5), reports.get((i * 5) + 2), reports.get((i * 5) + 4), reports.get((i * 5) + 1), reports.get((i * 5) + 3)));
+        }
+
+
+        return reportsObj;
+    }
+
+    public static void reportChangeUsername(String reportID, String newUsername){
+        ArrayList<String> reports = new ArrayList<>();
+
+        try {
+            File myObj = new File(Storage.reportsFilePath);
+            Scanner myReader = new Scanner(myObj);
+            while (myReader.hasNextLine()) {
+                reports.add(myReader.nextLine());
+            }
+            myReader.close();
+            System.out.println("Successfully read and wrote from the reports file. (reportChangeUsername)");
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred while reading file. (reportChangeUsername)");
+            e.printStackTrace();
+        }
+
+
+        reports.set((Integer.parseInt(reportID) * 5) + 2, newUsername);
+
+        try {
+            FileWriter myWriter = new FileWriter(Storage.reportsFilePath);
+
+            for(int i = 0; i < reports.size(); i++){
+                myWriter.write(reports.get(i) + "\n");
+            }
+
+            myWriter.close();
+            System.out.println("Successfully wrote to the reports file.");
+        } catch (IOException e) {
+            System.out.println("An error occurred while writing to the reports file.");
+            e.printStackTrace();
+        }
     }
 
     public static void addModToFile(String modID){
@@ -288,29 +348,22 @@ public class Storage {
     }
 
     public static void removeModFromFile(String modID){
-        String modList = "";
+        ArrayList<String> modList = modSort();
 
-        //read the file and looks for the ID
-        try {
-            File myObj = new File(availableModsFilePath);
-            Scanner myReader = new Scanner(myObj);
-            while(myReader.hasNextLine()) {
-                if(!myReader.nextLine().equals(modID))
-                    modList = modList + myReader.nextLine() + "\n";
+        String activeMods = "";
+
+        for(int i = 0; i < modList.size(); i++){
+            if(!modList.get(i).startsWith(modID)){
+                activeMods = activeMods + modList.get(i) + "\n";
             }
-            myReader.close();
-            System.out.println("Successfully read the modcall file. (removeModFromFile)");
-        } catch (FileNotFoundException e) {
-            System.out.println("An error occurred while reading the modcall file. (removeModFromFile");
-            e.printStackTrace();
         }
 
-        System.out.println(modList);
+        System.out.println(activeMods);
 
         //rewrites the available mods file without the given ID
         try {
             FileWriter myWriter = new FileWriter(availableModsFilePath);
-            myWriter.write(modList);
+            myWriter.write(activeMods);
             myWriter.close();
             System.out.println("Successfully wrote to the modcall file. (removeModFromFile)");
         } catch (IOException e) {

@@ -16,9 +16,9 @@ public class ModCall {
         EmbedBuilder eb = new EmbedBuilder();
 
         eb.setColor(new Color(102, 214, 238));
-        eb.setTitle("List of available mods\n");
-        eb.setDescription("No mods are available at this time.");
-        eb.setFooter("> Buttons are only usable by mods");
+        eb.setTitle("List of available Staff\n");
+        eb.setDescription("No Staff are available at this time.");
+        eb.setFooter("> Buttons are only usable by staff");
 
         TextChannel c = Objects.requireNonNull(jda.getGuildById(Storage.server)).getTextChannelById(Storage.modCallC);
 
@@ -48,9 +48,9 @@ public class ModCall {
         EmbedBuilder eb = new EmbedBuilder();
 
         eb.setColor(new Color(102, 214, 238));
-        eb.setTitle("List of available mods\n");
+        eb.setTitle("List of available Staff\n");
         eb.setDescription(x);
-        eb.setFooter("> Ping an active mod in general\n> Buttons are only usable by mods");
+        eb.setFooter("> Ping an active staff member in general\n> Buttons are only usable by staff");
 
 
         c.editMessageEmbedsById(messageID, eb.build()).queue();
@@ -65,7 +65,7 @@ public class ModCall {
         String x = "";
 
         if(modList.isEmpty()){
-            x = "There are no mods available";
+            x = "There are no Staff available";
         }else{
             for(int i = 0; i < modList.size(); i++){
                 x = x + "<@" + modList.get(i) + ">" + "\n";
@@ -75,11 +75,11 @@ public class ModCall {
         EmbedBuilder eb = new EmbedBuilder();
 
         eb.setColor(new Color(102, 214, 238));
-        eb.setTitle("List of available mods\n");
+        eb.setTitle("List of available Staff\n");
         eb.setDescription(x);
-        eb.setFooter("> Buttons are only usable by mods");
+        eb.setFooter("> Buttons are only usable by Staff");
         if(!modList.isEmpty())
-            eb.setFooter("> Ping an active mod in general\n> Buttons are only usable by mods");
+            eb.setFooter("> Ping an active staff member in general\n> Buttons are only usable by staff");
 
             c.editMessageEmbedsById(messageID, eb.build()).queue();
     }
@@ -91,8 +91,8 @@ public class ModCall {
         for(int i = 0; i < mods.size(); i++){
             if(mods.get(i).equals(modID)) {
                 x = true;
+                break;
             }
-            break;
         }
 
         return x;
@@ -106,8 +106,8 @@ public class ModCall {
         EmbedBuilder eb = new EmbedBuilder();
 
         eb.setColor(new Color(102, 214, 238));
-        eb.setTitle("List of available mods\n");
-        eb.setDescription("There are no mods available");
+        eb.setTitle("List of available Staff\n");
+        eb.setDescription("There are no Staff available");
 
         c.editMessageEmbedsById(Storage.modCallMessage, eb.build()).complete();
     }

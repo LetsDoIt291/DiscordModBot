@@ -17,64 +17,61 @@ public class AppealTicket{
     public String time;
     public String reasonToUnban;
 
-    public AppealTicket(String userID, String robloxUsername, String banReason, Long time, String reasonToUnban){
+    public AppealTicket(String userID, String robloxUsername, String banReason, String time, String reasonToUnban){
         this.userID = userID;
         this.robloxUsername = robloxUsername;
         this.banReason = banReason;
         this.time = String.valueOf(time);
         this.reasonToUnban = reasonToUnban;
+    }
 
+    public static ArrayList<EmbedBuilder> searchAppealer(String appealer) {
 
-        String report = userID + "," + robloxUsername + "," + banReason + "," + time + "," + reasonToUnban;
+        ArrayList<AppealTicket> appeals = Storage.appealSort();
 
+        ArrayList<AppealTicket> selectedAppeals = new ArrayList<>();
+
+        ArrayList<String> appealIDs = new ArrayList<>();
+
+        //searches for all the reports from a specific person
+        for (int i = 0; i < appeals.size(); i++) {
+            if (appeals.get(i).userID.equalsIgnoreCase(appealer)) {
+                selectedAppeals.add(appeals.get(i));
+                appealIDs.add(String.valueOf(i));
+            }
+        }
+
+        ArrayList<EmbedBuilder> appealList = new ArrayList<>();
+
+        if(!selectedAppeals.isEmpty()){
+            for(int i = 0; i < selectedAppeals.size(); i++){
+                //makes everything look pretty
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(new Color(102, 214, 238));
+                eb.setAuthor("Appeal for user " + appealer);
+
+                eb.addField("Appeal ID: " + i,"**Roblox user**: " + appeals.get(i).robloxUsername + "\n**Ban Reason**: " + appeals.get(i).banReason + "\n**Reason to be unbanned**: " + appeals.get(i).reasonToUnban, false);
+
+                appealList.add(eb);
+            }
+        }
+
+        return appealList;
+    }
+
+    public static void writeToFile(String userID, String robloxUsername, String banReason, String time, String reasonToUnban){
+        String appeal = userID + "\n" + robloxUsername + "\n" + banReason + "\n" + time + "\n" + reasonToUnban;
 
         //writes the report into a given file. append is true so the previous content is not overridden2
         try {
             FileWriter myWriter = new FileWriter(Storage.appealsFilePath, true);
-            myWriter.write(report + "\n");
+            myWriter.write(appeal + "\n");
             myWriter.close();
             System.out.println("Successfully wrote to the Appeals file. AppealTicket");
         } catch (IOException e) {
             System.out.println("An error occurred while writing to the Appeals file. AppealTicket");
             e.printStackTrace();
         }
-
-    }
-
-    public static EmbedBuilder searchSuspect(String user){
-        ArrayList<String> appeals = Storage.appealSort();
-
-        String info = "";
-
-        //Searches for all the appeals of a specific exploiter
-        for(int i = 0; i < appeals.size(); i++){
-            String[] args = appeals.get(i).split(",");
-
-            if(user.equalsIgnoreCase(args[1])){
-                info = info + i + ",";
-            }
-        }
-
-
-        //makes everything look pretty
-        EmbedBuilder eb = new EmbedBuilder();
-        int found = 0;
-
-        for(int i = 0; i < appeals.size(); i++){
-            String[] args = appeals.get(i).split(",");
-            if(args[1].equalsIgnoreCase(user)){
-                found++;
-                eb.addField("Appeal ID: " + i, "Roblox username: " + args[1] + "\nDiscord ID: " + args[0] + "\nReason for ban: " + args[2] + "\nReason to unban: " + args[4], false);
-            }
-        }
-        if(found == 0)
-            eb.setDescription("No appeals found");
-
-        eb.setColor(new Color(102, 214, 238));
-        eb.setAuthor("Appeals for user " + user);
-
-        return eb;
-
     }
 
     public static void appealFormat(AppealTicket r, JDA jda){
@@ -84,7 +81,7 @@ public class AppealTicket{
 
         EmbedBuilder eb = new EmbedBuilder();
         eb.setColor(new Color(102, 214, 238));
-        eb.setAuthor("Report ID: " + (Storage.appealSort().size()-1));
+        eb.setAuthor("Appeal ID: " + (Storage.appealSort().size()-1));
         eb.addField("Username", r.robloxUsername, false);
         eb.addField("Reason for ban", r.banReason, false);
         eb.addField("Reason to be unbanned", r.reasonToUnban, false);
@@ -92,24 +89,39 @@ public class AppealTicket{
 
         assert c != null;
         c.sendMessageEmbeds(eb.build())
-                .setActionRow(Button.success("acceptAppeal," + (Storage.appealSort().size()-1), "Accept"), Button.danger("denyAppeal," + (Storage.appealSort().size()-1), "Deny"))
+                .setActionRow(
+                        Button.success("acceptAppeal," + (Storage.appealSort().size()-1), "Accept"),
+                        Button.danger("denyAppeal," + (Storage.appealSort().size()-1), "Deny"),
+                        Button.secondary("customAppealAccepted," + (Storage.appealSort().size()-1),"Accept (CM)"),
+                        Button.secondary("customAppealDenied," + (Storage.appealSort().size()-1),"Deny (CM)"))
                 .queue();
     }
 
-    public static String getDiscordID(String id){
-        String[] args = Storage.appealSort().get(Integer.parseInt(id)).split(",");
+    public static void appealFormat(AppealTicket r, JDA jda, int aID){
 
-        return args[0];
-    }
+        TextChannel c = Objects.requireNonNull(jda.getGuildById(Storage.server)).getTextChannelById(Storage.gameTicketC);
 
-    public static String getSuspect(String id){
-        String[] args = Storage.appealSort().get(Integer.parseInt(id)).split(",");
 
-        return args[1];
+        EmbedBuilder eb = new EmbedBuilder();
+        eb.setColor(new Color(102, 214, 238));
+        eb.setAuthor("Appeal ID: " + aID);
+        eb.addField("Username", r.robloxUsername, false);
+        eb.addField("Reason for ban", r.banReason, false);
+        eb.addField("Reason to be unbanned", r.reasonToUnban, false);
+        eb.setFooter("Appeal submitted by: " + r.userID);
+
+        assert c != null;
+        c.sendMessageEmbeds(eb.build())
+                .setActionRow(
+                        Button.success("acceptAppeal," + aID, "Accept"),
+                        Button.danger("denyAppeal," + aID, "Deny"),
+                        Button.secondary("customAppealAccepted," + aID,"Accept (CM)"),
+                        Button.secondary("customAppealDenied," + aID,"Deny (CM)"))
+                .queue();
     }
 
     public static void archive(String aID, String modID, int type, JDA jda){
-        ArrayList<String> reports = Storage.appealSort();
+        ArrayList<AppealTicket> appeals = Storage.appealSort();
         String status;
 
         if(type == 0)
@@ -117,17 +129,15 @@ public class AppealTicket{
         else
             status = "denied";
 
-        String[] args = reports.get(Integer.parseInt(aID)).split(",");
-
         TextChannel c = Objects.requireNonNull(jda.getGuildById(Storage.server)).getTextChannelById(Storage.archiveC);
 
         EmbedBuilder eb = new EmbedBuilder();
         eb.setColor(new Color(102, 214, 238));
         eb.setAuthor("Appeal ID: " + aID);
-        eb.addField("Username", args[1], false);
-        eb.addField("Reason for unban", args[2], false);
-        eb.addField("Reason to be unbanned", args[3], false);
-        eb.setFooter("Appeal submitted by: " + args[0] + "\nAppeal " + status + " by: " + modID);
+        eb.addField("Username", appeals.get(Integer.parseInt(aID)).robloxUsername, false);
+        eb.addField("Reason for ban", appeals.get(Integer.parseInt(aID)).banReason, false);
+        eb.addField("Reason to be unbanned", appeals.get(Integer.parseInt(aID)).reasonToUnban, false);
+        eb.setFooter("Appeal submitted by: " + appeals.get(Integer.parseInt(aID)).userID + "\nAppeal " + status + " by: " + modID);
 
         assert c != null;
         c.sendMessageEmbeds(eb.build()).queue();
