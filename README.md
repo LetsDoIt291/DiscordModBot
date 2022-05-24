@@ -1,2 +1,0 @@
-# BBModHelperBot
-Bot thing
